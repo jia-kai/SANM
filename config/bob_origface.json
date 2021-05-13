@@ -1,0 +1,17 @@
+{
+    "func": "gravity",
+    "material": {
+        "type": "young_poisson",
+        "young": 680000,
+        "poisson": 0.45,
+        "density": 3200
+    },
+    "energy_model": "neohookean_i",
+    "mesh": "model/bob_origface.1",
+    "g": [0, -9.81, 0],
+    "out_filename": "bob_origface",
+    "out_surface_vtx": "bob_origface.vtx",
+    "scale": 0.08,
+    "boundary_proj_dir": [-1, 0, 0],
+    "boundary_thresh": 0.04
+}

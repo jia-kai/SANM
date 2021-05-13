@@ -1,0 +1,22 @@
+{
+    "func": "test_cuboid_twist",
+    "material": {
+        "type": "young_poisson",
+        "young": 1e7,
+        "poisson": 0.45,
+        "_comment": "similar to that of silicone rubber"
+    },
+    "energy_model": "arap",
+    "spacing": 0.025,
+    "x": 50,
+    "y": 8,
+    "z": 8,
+    "out_filename": "cuboid-twist",
+    "rotate": 0,
+    "bend": [
+        {
+            "angle": -63,
+            "shift": [5, 55, 3]
+        }
+    ]
+}

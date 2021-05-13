@@ -1,0 +1,14 @@
+{
+    "func": "gravity",
+    "material": {
+        "type": "young_poisson",
+        "young": 680000,
+        "poisson": 0.45,
+        "density": 958.125,
+        "_comment": "data extracted from plant16.1_vega.veg in the ANM official impl"
+    },
+    "energy_model": "neohookean_i",
+    "mesh": "model/beam3_tet.1",
+    "g": [0, -9.81, 0],
+    "out_filename": "bar"
+}

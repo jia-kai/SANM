@@ -1,0 +1,30 @@
+{
+    "color": [0, 0, 0],
+    "transforms": [
+        {
+            "name": "resize",
+            "value": [1.04, 1.04, 1.04]
+        },
+        {
+            "name": "rotate",
+            "value": 1.92,
+            "orient_axis": "X"
+        },
+        {
+            "name": "rotate",
+            "value": 0.17,
+            "orient_axis": "Y"
+        },
+        {
+            "name": "rotate",
+            "value": 0.183,
+            "orient_axis": "Z"
+        },
+        {
+            "name": "translate",
+            "value": [-0.2, 0, 0.11]
+        }
+    ],
+    "texture": "configs/bob_diffuse.png",
+    "smooth": true
+}

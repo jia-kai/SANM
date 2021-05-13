@@ -1,0 +1,13 @@
+{
+    "func": "test_single_tet_inverse",
+    "material": {
+        "type": "young_poisson",
+        "young": 1e7,
+        "poisson": 0.45,
+        "_comment": "similar to that of silicone rubber"
+    },
+    "energy_model": "neohookean",
+    "spacing": 0.025,
+    "out_filename": "test.stl"
+}
+

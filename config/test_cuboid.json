@@ -1,0 +1,15 @@
+{
+    "func": "test_cuboid",
+    "material": {
+        "type": "young_poisson",
+        "young": 1e7,
+        "poisson": 0.45,
+        "_comment": "similar to that of silicone rubber"
+    },
+    "energy_model": "neohookean_c",
+    "spacing": 0.025,
+    "x": 20,
+    "y": 8,
+    "z": 8,
+    "out_filename": "cuboid"
+}

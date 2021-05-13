@@ -1,0 +1,4 @@
+This BRENT library is obtained on https://people.sc.fsu.edu/~jburkardt/cpp_src/brent/brent.html.
+
+Author:
+Original FORTRAN77 version by Richard Brent; C++ version by John Burkardt; Modifications by John Denker.

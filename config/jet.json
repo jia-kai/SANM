@@ -1,0 +1,22 @@
+{
+    "func": "gravity",
+    "material": {
+        "type": "young_poisson",
+        "young": 680000,
+        "poisson": 0.45,
+        "density": 958.125
+    },
+    "energy_model": "neohookean_i",
+    "mesh": "model/jet.1",
+    "g": [0, 0, -9.81],
+    "out_filename": "jet",
+    "out_surface_vtx": "jet.vtx",
+    "scale": 0.003,
+    "boundary_proj_dir": [0, 0, 1],
+    "boundary_thresh": 0.01,
+    "boundary_filter": {
+        "dir": [1, 0, 0],
+        "min": 0.49,
+        "max": 0.51
+    }
+}

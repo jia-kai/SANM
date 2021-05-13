@@ -1,0 +1,19 @@
+{
+    "func": "mesh_twist",
+    "energy_model": "arap",
+    "transforms": [
+        {
+            "rot_axis": 0,
+            "angle": 40,
+            "shift": [0, 0, 0]
+        },
+        {
+            "rot_axis": 2,
+            "angle": 40,
+            "shift": [0.1, 0.11, 0.08]
+        }
+    ],
+    "axis": [1, 0, 0],
+    "ratio_lo": 0.2,
+    "ratio_hi": 0.08
+}

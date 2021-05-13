@@ -1,0 +1,69 @@
+all: $(shell grep -o '^output.*png:' Makefile.render | tr -d :)
+
+output/cube-twist-nc.png:
+	./fea_and_render.sh $@ cuboid-twist.json cuboid-twist-5.obj \
+		cuboid_twist.json
+	mogrify -flatten $@
+output/cube-twist-ni.png:
+	./fea_and_render.sh $@ cuboid-twist.json cuboid-twist-5.obj \
+		cuboid_twist.json override_neo_incomp.json
+	mogrify -flatten $@
+output/cube-twist-arap.png:
+	./fea_and_render.sh $@ cuboid-twist.json cuboid-twist-5.obj \
+		cuboid_twist.json override_arap.json
+	mogrify -flatten $@
+
+output/armadillo-g-rest.png:
+	./render_ondemand.sh configs/armadillo.json 100 100 \
+		output_parallel/default/armadillo-orig.obj $@
+	mogrify -flatten $@
+
+output/armadillo-g-fwd-nc.png:
+	./render_ondemand.sh configs/armadillo.json 100 100 \
+		output_parallel/default/armadillo-i0-neohookean_c.obj $@
+	mogrify -flatten $@
+
+output/armadillo-g-inv-ni.png:
+	./render_ondemand.sh configs/armadillo.json 100 100 \
+		output_parallel/inverse_neo_incomp/armadillo-i1-neohookean_i.obj $@
+	mogrify -flatten $@
+
+output/armadillo-g-fwd-interm-1.0.png:
+	set -e; \
+	[ -f output_parallel/interm/armadillo-0.0.obj ] || \
+		ln -sv armadillo-orig.obj output_parallel/interm/armadillo-0.0.obj; \
+	for i in 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0; do \
+		[ -f output/armadillo-g-fwd-interm-$$i.png ] && continue; \
+		./render_ondemand.sh configs/armadillo.json 30 100 \
+			output_parallel/interm/armadillo-$$i.obj \
+			output/armadillo-g-fwd-interm-$$i.png; \
+	done
+
+output/armadillo-g-fwd.png: output/armadillo-g-fwd-interm-1.0.png
+	montage -geometry +0+0 -tile 11x1 \
+		-crop 268x307+2+0 output/armadillo-g-fwd-interm-*.png \
+		-background none $@
+
+output/bob_deformed.png:
+	./fea_and_render.sh $@ bob.json bob_origface.vtx \
+		bob_origface.json bob_bend_override.json
+
+output/bob_original.png:
+	./render_ondemand.sh configs/bob_origface.json 100 100 \
+		../config/model/bob_origface.1.obj $@
+
+output/bob.png: output/bob_original.png output/bob_deformed.png
+	./vertical_auto_montage.sh $^ $@
+	mogrify -flatten $@
+
+output/jet-rest.png:
+	./render_ondemand.sh configs/jet-rest.json 100 100 \
+		../config/model/jet.1.obj $@
+
+output/jet-fwd.png:
+	./fea_and_render.sh $@ jet.json jet.vtx jet.json
+
+output/jet-inv.png:
+	./fea_and_render.sh $@ jet.json jet.vtx jet.json override_inverse.json
+
+.PHONY: all

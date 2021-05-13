@@ -1,0 +1,18 @@
+{
+    "color": [135, 219, 18],
+    "transforms": [
+        {
+            "name": "translate",
+            "value": [-0.35, 0, 0.08]
+        },
+        {
+            "name": "abs_rotation_deg",
+            "value": [23.9, 22.9, -21.1]
+        },
+        {
+            "name": "resize",
+            "value": [2.4, 2.4, 2.4]
+        }
+    ],
+    "smooth": true
+}

@@ -1,0 +1,18 @@
+{
+    "color": [232, 235, 218],
+    "transforms": [
+        {
+            "name": "rotate",
+            "value": 0.2,
+            "orient_axis": "X"
+        },
+        {
+            "name": "translate",
+            "value": [0.24, -0.1, 0]
+        },
+        {
+            "name": "resize",
+            "value": [11.6, 11.6, 11.6]
+        }
+    ]
+}

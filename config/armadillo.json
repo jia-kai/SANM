@@ -1,0 +1,16 @@
+{
+    "func": "gravity",
+    "material": {
+        "type": "young_poisson",
+        "young": 680000,
+        "poisson": 0.45,
+        "density": 958.125,
+        "_comment": "data extracted from plant16.1_vega.veg in the ANM official impl"
+    },
+    "scale": 1e-3,
+    "energy_model": "neohookean_c",
+    "mesh": "model/Armadillo.1",
+    "g": [0, -9.81, 0],
+    "out_filename": "armadillo",
+    "boundary_thresh": 0.05
+}

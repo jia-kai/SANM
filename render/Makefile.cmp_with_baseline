@@ -1,0 +1,19 @@
+TARGETS := plant-g plant-d  \
+	bifur3-g bifur3-d \
+	human-g human-d \
+	armadillo_small-g armadillo_small-d \
+	bob-g bob-d \
+	bar-g bar2-d
+
+all: $(TARGETS)
+
+%-g:
+	./cmp_with_baseline.sh $@ g $(subst -g,,$@).json
+
+%-d:
+	./cmp_with_baseline.sh $@ d $(subst -d,,$@){,_bend_override}.json
+
+bar2-d:
+	./cmp_with_baseline.sh $@ d cuboid_twist_baseline.json
+
+.PHONY: all $(TARGETS)
