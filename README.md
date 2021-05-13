@@ -1,11 +1,11 @@
 # SANM: A Symbolic Asymptotic Numerical Solver
 
-This repository is the official implementation of the SANM solver to appear at
-SIGGRAPH 2021.
+This repository is the official implementation of the SANM solver described in
+[our paper](https://arxiv.org/abs/2105.08535) to appear at SIGGRAPH 2021.
 
 SANM is a framework that automates and generalizes the Asymptotic Numerical
-Methods (ANM) to solve symbolically represented nonlinear systems via numerical
-continuation and **higher-order approximations**(unlike Newtonian methods that
+Method (ANM) to solve symbolically represented nonlinear systems via numerical
+continuation and higher-order approximations (unlike Newtonian methods that
 essentially use first or second order approximations). In a nutshell, SANM
 automatically extends a parameterized curve in a high-dimensional space from a
 given starting point, where the curve is implicitly defined by a symbolically
@@ -41,20 +41,21 @@ Execute `./tests/sanm_tests` to run the test cases.
 ## Usage
 
 Use `./fea/fea` to run the mesh deformation applications. This program needs
-some JSON configurations to specify the functionality.
+some JSON configurations to specify the functionality, the model file, and other
+parameters.
 
 For example, to computes the deformed Bob model under gravity with SANM:
-
 ```sh
 ./fea/fea ../config/sys.json ../config/bob.json`
 ```
+which generates an output `bob-i0-neohookean_i.obj` that can be visualized by
+MeshLab.
 
-It generates an output `bob-i0-neohookean_i.obj` that can be visualized by
-MeshLab. To solve the same problem with Newton's energy minimization, run:
-
+To solve the same problem with Newton's energy minimization, run:
 ```sh
 ./fea/fea ../config/sys.json ../config/bob.json ../config/override_baseline_noproj.json
 ```
+
 ### Reproducing the paper results
 
 The [render](render) directory contains the tools for reproducing the results
@@ -63,23 +64,23 @@ reported in the paper.
 ```sh
 cd render
 
-# Step 1: Run parallel comparison
+# Step 1: Run comparison for parallel solving
 # Run these commands on a machine with at least 32 CPU cores.
 mkdir output_parallel
 cd output_parallel
 ../run_armadillo_exprs.sh
 ../run_cmp_chen2014.sh
 
-# Step 2: Generate results for comparing with Newton's methods
+# Step 2: Run comparison with Newton's methods
 # Change the parallelism (-j4 and -j6) according to hardware configuration
 make -f Makefile.cmp_with_baseline -j4
 # run the LevMar method, which is too slow so we use more parallel jobs
 RUN_LEVMAR=1 make -f Makefile.cmp_with_baseline  -j6
 
 # Step 3: Render the images
-# Run these commands on a machine with a GPU to speedup rendering
+# The speed of this step can be improved by running on machines with GPUs.
 # Blender is required
-pip3 install pymeshlab
+pip3 install pymeshlab  # install our python dependency
 make -f Makefile.render
 
 # Step 4: Generate tables and plots
