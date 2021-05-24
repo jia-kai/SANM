@@ -259,11 +259,13 @@ TetrahedralMeshPtr run_and_save(const char* name, const json& config,
     const double time_prep = timer.stop().time();
     jstat["time_prep"] = time_prep;
 
+    bool solution_sanity_check = true;
+
     auto post_process = [&](const TensorND& xt) {
         auto out_mesh = make_out_mesh(xt);
 
-        auto frms = TetrahedralDeformableBody::solution_sanity_check(
-                *model, xt, f_load_sub, *out_mesh);
+        auto frms = TetrahedralDeformableBody::compute_force_rms(
+                *model, xt, f_load_sub, *out_mesh, solution_sanity_check);
         jstat["force_rms_recomp"] = frms;
         jstat["mesh_V"] = deformable.mesh().nr_vertices();
         jstat["mesh_F"] = deformable.mesh().nr_faces();
@@ -296,22 +298,68 @@ TetrahedralMeshPtr run_and_save(const char* name, const json& config,
         return out_mesh;
     };
 
+    bool need_save_interm = json_get_bool_opt(config, "save_interm");
+    auto save_interm = [&](Timer* timer, int iter,
+                           const std::string& out_name_suffix,
+                           const TensorND& xt) {
+        if (timer) {
+            timer->stop();
+        }
+        std::string out_name = config["out_filename"].get<std::string>();
+        out_name += "-";
+        out_name += out_name_suffix;
+        out_name += ".obj";
+        auto mesh = make_out_mesh(xt);
+        save_mesh(out_name, *mesh);
+        json s;
+        double time = timer ? timer->time() : 0;
+        s["time"] = time;
+        s["iter"] = iter;
+        s["rms"] = TetrahedralDeformableBody::compute_force_rms(
+                *model, xt, f_load_sub, *mesh, false);
+        save_json(out_name + ".json", s);
+        if (timer) {
+            timer->start();
+        }
+        return time;
+    };
+
+    if (need_save_interm) {
+        save_interm(nullptr, 0, "init", model->lt_inp->x0());
+    }
+
     if (setup_baseline(config)) {
         sanm_assert(!inverse_mode);
         baseline::Stat stat;
+        baseline::IterCallback iter_callback;
+        int iter_num = 0;
+        Timer interm_timer;
+        interm_timer.start();
+        if (need_save_interm) {
+            iter_callback = [&](const CoordMat3D& vtx) {
+                ++iter_num;
+                auto time = save_interm(&interm_timer, iter_num,
+                                        ssprintf("%03d", iter_num),
+                                        model->lt_inp->copy_vtx_values(vtx));
+                return time <= 300;
+            };
+        }
         if (json_get_bool_opt(config["baseline"], "use_levmar")) {
             printf("opt: levmar\n");
             baseline::g_hessian_proj = false;
             stat = baseline::solve_force_equ_levmar(
                     deformable.mesh().faces(), deformable.mesh().vertices(),
                     f_load_full, deformable.coord_fixed_mask(),
-                    make_baseline_material_desc(config), RMS_THRESH_FORCE_EQU);
+                    make_baseline_material_desc(config), RMS_THRESH_FORCE_EQU,
+                    iter_callback);
+            solution_sanity_check = false;
         } else {
             stat = baseline::solve_energy_min(
                     deformable.mesh().faces(), deformable.mesh().vertices(),
                     deformable.mesh().vertices(), &f_load_full,
                     deformable.coord_fixed_mask(),
-                    make_baseline_material_desc(config), RMS_THRESH_FORCE_EQU);
+                    make_baseline_material_desc(config), RMS_THRESH_FORCE_EQU,
+                    iter_callback);
         }
         make_baseline_stat(jstat, stat);
         auto xt = model->lt_inp->copy_vtx_values(stat.vtx);
@@ -325,9 +373,11 @@ TetrahedralMeshPtr run_and_save(const char* name, const json& config,
     hyper_param.solution_check_tol = 1e-3;
 
     TensorND xt;
-    if (json_get_bool_opt(config, "save_interm")) {
+    if (need_save_interm) {
         // larger tol because we have no error correction here
         hyper_param.solution_check_tol = 0.01;
+        Timer interm_timer;
+        interm_timer.start();
         ANMSolverVecScale solver{model->y.node(),
                                  model->lt_inp,
                                  model->lt_out,
@@ -336,19 +386,14 @@ TetrahedralMeshPtr run_and_save(const char* name, const json& config,
                                  f_load_sub,
                                  hyper_param};
         printf("interm: ");
-        fp_t tnext = 0.1;
-        for (; tnext < 1;) {
-            while (tnext <= 1.05 && solver.get_t_upper() >= tnext) {
+        fp_t tnext = 0.05;
+        for (int iter = 1; tnext < 1; ++iter) {
+            while (tnext <= 1.02 && solver.get_t_upper() >= tnext) {
                 xt = solver.eval(solver.solve_a(tnext)).first;
-                save_mesh(ssprintf("%s-%.1f.obj",
-                                   config["out_filename"]
-                                           .get<std::string>()
-                                           .c_str(),
-                                   tnext),
-                          *make_out_mesh(xt));
+                save_interm(&interm_timer, iter, ssprintf("%.2f", tnext), xt);
                 printf(" %g", tnext);
                 fflush(stdout);
-                tnext += 0.1;
+                tnext += 0.05;
             }
             if (tnext >= 1) {
                 break;

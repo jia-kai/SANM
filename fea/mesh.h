@@ -204,18 +204,19 @@ public:
             const CoordMatND<dim>* vtx_delta = nullptr) const;
 
     /*!
-     * \brief check whether the solution to an elastic model meets certain
-     *      specifications
+     * \brief compute the RMS of internal force
      * \param xt the solution
      * \param f_load the load force corresponding to \p xt
      * \param final_mesh the deformed mesh after replacing verticies with values
      *      from \p xt
+     * \param sanity_check whether to check that the force on all nodes are
+     *      small
      * \return force RMS
      */
-    static fp_t solution_sanity_check(const ElasticForceModel& model,
-                                      const sanm::TensorND& xt,
-                                      const sanm::TensorND& f_load,
-                                      const Mesh& final_mesh);
+    static fp_t compute_force_rms(const ElasticForceModel& model,
+                                  const sanm::TensorND& xt,
+                                  const sanm::TensorND& f_load,
+                                  const Mesh& final_mesh, bool sanity_check);
 
 private:
     MaterialProperty m_material;

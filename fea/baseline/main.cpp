@@ -228,7 +228,8 @@ double rms(const Eigen::VectorXd& v) {
 baseline::Stat baseline::solve_energy_min(
         const IndexMat& elements, const CoordMat& vtx_init,
         const CoordMat& vtx_dst, const CoordMat* f_ext, const MaskMat& bnd_mask,
-        const MaterialDesc& material_desc, double gtol_refine) {
+        const MaterialDesc& material_desc, double gtol_refine,
+        const IterCallback& iter_callback) {
     check_hessian();
     auto material = make_material(material_desc);
     materials::TetMesh<double> tet_mesh{vtx_init, elements};
@@ -320,6 +321,9 @@ baseline::Stat baseline::solve_energy_min(
         printf("\riter=%d grms=%g df=%g dx=%g step=%g f=%g cnt=%d  ",
                stat.nr_iter, grad_rms, df, dx, step, energy, linear_search_cnt);
         fflush(stdout);
+        if (iter_callback && !iter_callback(vertices)) {
+            break;
+        }
         if (grad_rms < gtol || dx < xtol) {
             stat.df = df;
             stat.dx = dx;
@@ -372,6 +376,9 @@ baseline::Stat baseline::solve_energy_min(
         double grad_rms = rms(grad);
         printf("\riter=%d grms=%g ", stat.nr_iter, grad_rms);
         fflush(stdout);
+        if (iter_callback && !iter_callback(vertices)) {
+            break;
+        }
         if (grad_rms < gtol_refine || stat.nr_iter_refine >= 20) {
             stat.grad_rms_refine = grad_rms;
             break;
@@ -385,7 +392,8 @@ baseline::Stat baseline::solve_energy_min(
 baseline::Stat baseline::solve_force_equ_levmar(
         const IndexMat& elements, const CoordMat& vtx_init,
         const CoordMat& f_ext, const MaskMat& bnd_mask,
-        const MaterialDesc& material_desc, double gtol) {
+        const MaterialDesc& material_desc, double gtol,
+        const IterCallback& iter_callback) {
     check_hessian();
     cf_assert(!g_hessian_proj);
     auto material = make_material(material_desc);
@@ -488,6 +496,9 @@ baseline::Stat baseline::solve_force_equ_levmar(
         vertices = new_vertices;
         energy = new_energy;
 
+        if (iter_callback && !iter_callback(vertices)) {
+            break;
+        }
         if (energy < gtol || stat.nr_iter >= max_iters) {
             stat.dx = dx;
             stat.grad_rms = energy;

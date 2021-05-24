@@ -219,15 +219,19 @@ fea::DeformableBody<dim, Mesh>::make_forward(
 }
 
 template <int dim, class Mesh>
-fea::fp_t fea::DeformableBody<dim, Mesh>::solution_sanity_check(
+fea::fp_t fea::DeformableBody<dim, Mesh>::compute_force_rms(
         const ElasticForceModel& model, const sanm::TensorND& xt,
-        const sanm::TensorND& f_load, const Mesh& final_mesh) {
+        const sanm::TensorND& f_load, const Mesh& final_mesh,
+        bool sanity_check) {
     sanm::TensorND sym_inpval = model.lt_inp->apply(xt),
                    shape_mat0 = sym_inpval + model.lt_inp->bias();
     shape_mat0.assert_allclose("shape matrix check", final_mesh.shape_matrix());
     sanm::TensorND stress_tensor = sanm::symbolic::eval_unary_func(
                            model.y.node(), sym_inpval),
                    internal_force = model.lt_out->apply(stress_tensor);
-    internal_force.assert_allclose("force equilibrium check", -f_load, 1e-2);
+    if (sanity_check) {
+        internal_force.assert_allclose("force equilibrium check", -f_load,
+                                       1e-5);
+    }
     return (internal_force + f_load).norm_rms();
 }

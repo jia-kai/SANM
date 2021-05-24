@@ -30,12 +30,12 @@ output/armadillo-g-inv-ni.png:
 
 output/armadillo-g-fwd-interm-1.0.png:
 	set -e; \
-	[ -f output_parallel/interm/armadillo-0.0.obj ] || \
-		ln -sv armadillo-orig.obj output_parallel/interm/armadillo-0.0.obj; \
+	[ -f output_parallel/interm/armadillo-0.00.obj ] || \
+		ln -sv armadillo-orig.obj output_parallel/interm/armadillo-0.00.obj; \
 	for i in 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0; do \
 		[ -f output/armadillo-g-fwd-interm-$$i.png ] && continue; \
 		./render_ondemand.sh configs/armadillo.json 30 100 \
-			output_parallel/interm/armadillo-$$i.obj \
+			output_parallel/interm/armadillo-$${i}0.obj \
 			output/armadillo-g-fwd-interm-$$i.png; \
 	done
 

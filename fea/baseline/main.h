@@ -1,4 +1,7 @@
+#pragma once
+
 #include <Eigen/Core>
+#include <functional>
 
 namespace baseline {
 using CoordMat = Eigen::Matrix<double, 3, Eigen::Dynamic>;
@@ -22,16 +25,24 @@ struct MaterialDesc {
     double young, poisson;
 };
 
+/*!
+ * a calllback function that will be called by solve_energy_min() and
+ * solve_force_equ_levmar() after each iteration. Return false to abort solving.
+ */
+using IterCallback = std::function<bool(const CoordMat&)>;
+
 //! energy minimization with optional static external force
 Stat solve_energy_min(const IndexMat& elements, const CoordMat& vtx_init,
                       const CoordMat& vtx_dst, const CoordMat* f_ext,
                       const MaskMat& bnd_mask,
-                      const MaterialDesc& material_desc, double gtol_refine);
+                      const MaterialDesc& material_desc, double gtol_refine,
+                      const IterCallback& iter_callback = {});
 
 //! solve static force equilibrium with the Levenberg-Marquardt algorithm
 Stat solve_force_equ_levmar(const IndexMat& elements, const CoordMat& vtx_init,
                             const CoordMat& f_ext, const MaskMat& bnd_mask,
-                            const MaterialDesc& material_desc, double gtol);
+                            const MaterialDesc& material_desc, double gtol,
+                            const IterCallback& iter_callback = {});
 
 extern bool g_hessian_proj;
 extern double g_hessian_diag_reg;
