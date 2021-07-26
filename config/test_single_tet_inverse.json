@@ -6,7 +6,7 @@
         "poisson": 0.45,
         "_comment": "similar to that of silicone rubber"
     },
-    "energy_model": "neohookean",
+    "energy_model": "neohookean_i",
     "spacing": 0.025,
     "out_filename": "test.stl"
 }

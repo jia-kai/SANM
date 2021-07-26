@@ -1,7 +1,7 @@
 # SANM: A Symbolic Asymptotic Numerical Solver
 
 This repository is the official implementation of the SANM solver described in
-[our paper](https://arxiv.org/abs/2105.08535) to appear at SIGGRAPH 2021.
+[our paper](https://arxiv.org/abs/2105.08535) published at SIGGRAPH 2021.
 
 SANM is a framework that automates and generalizes the Asymptotic Numerical
 Method (ANM) to solve symbolically represented nonlinear systems via numerical

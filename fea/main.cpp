@@ -33,12 +33,25 @@ const std::unordered_map<std::string, EnergyModel> NAME2ENERGY_MODEL{
         {"neohookean_i", EnergyModel::NEOHOOKEAN_I},
         {"arap", EnergyModel::ARAP},
 };
+
 const std::unordered_map<std::string, baseline::MaterialDesc::Energy>
         NAME2BASELINE_ENERGY_MODEL{
                 {"neohookean_c", baseline::MaterialDesc::NEOHOOKEAN_C},
                 {"neohookean_i", baseline::MaterialDesc::NEOHOOKEAN_I},
                 {"arap", baseline::MaterialDesc::ARAP},
         };
+
+template <typename T>
+T safe_map_lookup(const json& config, const std::string& conf_key,
+                  const std::unordered_map<std::string, T>& map) {
+    sanm_assert(config.contains(conf_key), "config does not have key %s",
+                conf_key.c_str());
+    auto key = config[conf_key].get<std::string>();
+    auto iter = map.find(key);
+    sanm_assert(iter != map.end(), "key %s (value %s) is not understood",
+                conf_key.c_str(), key.c_str());
+    return iter->second;
+}
 
 void save_mesh(const std::string& filename, const TetrahedralMesh& mesh,
                const std::unordered_set<int>* surface = nullptr) {
@@ -138,8 +151,7 @@ MaterialProperty make_material_property(const json& config,
 
 baseline::MaterialDesc make_baseline_material_desc(const json& config) {
     auto m = make_material_property(config["material"]);
-    return {NAME2BASELINE_ENERGY_MODEL.at(
-                    config["energy_model"].get<std::string>()),
+    return {safe_map_lookup(config, "energy_model", NAME2BASELINE_ENERGY_MODEL),
             m.young_modulus(), m.poisson_ratio()};
 }
 
@@ -245,7 +257,7 @@ TetrahedralMeshPtr run_and_save(const char* name, const json& config,
     timer.start();
 
     auto energy_model =
-            NAME2ENERGY_MODEL.at(config["energy_model"].get<std::string>());
+            safe_map_lookup(config, "energy_model", NAME2ENERGY_MODEL);
     auto model = inverse_mode ? deformable.make_inverse(energy_model)
                               : deformable.make_forward(energy_model);
     auto f_load_sub = model->lt_inp->copy_vtx_values(f_load_full);
@@ -449,7 +461,7 @@ json run_with_vtx_delta(const char* name, const json& config,
     };
 
     auto energy_model =
-            NAME2ENERGY_MODEL.at(config["energy_model"].get<std::string>());
+            safe_map_lookup(config, "energy_model", NAME2ENERGY_MODEL);
     auto model = deformable.make_forward(energy_model, &vtx_coord, &vtx_delta);
 
     auto eval_force_rms = [&]() {
