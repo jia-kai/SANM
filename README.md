@@ -97,11 +97,13 @@ If SANM is helpful to your research, please cite us as
 
 ```text
 @article{jia2021sanm,
-  title={{SANM}: A Symbolic Asymptotic Numerical Solver with Applications in
-      Mesh Deformation},
-  author={Jia, Kai},
-  journal={ACM Transactions on Graphics},
-  year={2021},
-  publisher={ACM}
+    title={{SANM}: A Symbolic Asymptotic Numerical Solver with Applications in
+        Mesh Deformation},
+    author={Jia, Kai},
+    journal={{ACM} Transactions on Graphics (Proc. {SIGGRAPH})},
+    publisher={ACM},
+    year={2021},
+    volume={40},
+    number={4}
 }
 ```
